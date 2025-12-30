@@ -28,6 +28,8 @@
     <property name="dist.dir" location="dist"/>
     <property name="lib.dir" location="lib"/>
     <property name="test.reports.dir" location="${build.dir}/test-reports"/>
+    <property name="test.reports.xml.dir" location="${test.reports.dir}/xml"/>
+    <property name="test.reports.html.dir" location="${test.reports.dir}/html"/>
 
     <property name="app.name" value="webapp-test-sample"/>
     <property name="war.file" value="${dist.dir}/${app.name}.war"/>
@@ -56,7 +58,8 @@
         <mkdir dir="${build.classes.dir}"/>
         <mkdir dir="${build.test.classes.dir}"/>
         <mkdir dir="${dist.dir}"/>
-        <mkdir dir="${test.reports.dir}"/>
+        <mkdir dir="${test.reports.xml.dir}"/>
+        <mkdir dir="${test.reports.html.dir}"/>
     </target>
 
     <!-- クリーン -->
@@ -120,7 +123,7 @@
         <echo message="JUnit 5テストを実行しています..."/>
         <junitlauncher printsummary="yes" haltonfailure="no">
             <classpath refid="test.classpath"/>
-            <testclasses outputdir="${test.reports.dir}">
+            <testclasses outputdir="${test.reports.xml.dir}">
                 <fileset dir="${build.test.classes.dir}">
                     <include name="**/*Test.class"/>
                 </fileset>
@@ -128,6 +131,22 @@
                 <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
             </testclasses>
         </junitlauncher>
+
+        <echo message="HTMLテストレポートを生成しています..."/>
+        <junitreport todir="${test.reports.xml.dir}">
+            <fileset dir="${test.reports.xml.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${test.reports.html.dir}"/>
+        </junitreport>
+
+        <echo message=""/>
+        <echo message="=========================================="/>
+        <echo message="テスト完了"/>
+        <echo message="=========================================="/>
+        <echo message="XMLレポート: ${test.reports.xml.dir}"/>
+        <echo message="HTMLレポート: ${test.reports.html.dir}/index.html"/>
+        <echo message=""/>
     </target>
 
     <!-- すべてをビルド -->

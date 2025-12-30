@@ -44,7 +44,8 @@ docker-compose down
 webapp_ant_selenium/
 ├── build.xml                    # Antビルドファイル
 ├── ivy.xml                      # Ivy依存関係定義ファイル
-├── chromedriver                 # ChromeDriver実行ファイル
+├── setup-chromedriver.sh        # ChromeDriver自動ダウンロードスクリプト
+├── chromedriver                 # ChromeDriver実行ファイル（自動生成、git管理外）
 ├── ant-lib/                     # Apache Ivy JAR
 │   └── ivy-2.5.3.jar           # Ivy本体
 ├── src/                         # アプリケーションソースコード
@@ -61,11 +62,14 @@ webapp_ant_selenium/
 │   ├── docker-compose.yml       # Docker Compose設定
 │   ├── Dockerfile               # Dockerイメージ定義
 │   └── README.md                # Docker環境の説明
-├── lib/                         # 依存ライブラリ（Ivyが自動生成）
+├── lib/                         # 依存ライブラリ（Ivyが自動生成、git管理外）
 │   ├── compile/                 # コンパイル用ライブラリ
 │   └── test/                    # テスト用ライブラリ
-├── build/                       # ビルド成果物（自動生成）
-└── dist/                        # 配布用WARファイル（自動生成）
+├── build/                       # ビルド成果物（自動生成、git管理外）
+│   └── test-reports/            # テストレポート
+│       ├── xml/                 # XMLレポート（CI/CD統合用）
+│       └── html/                # HTMLレポート（ブラウザ閲覧用）
+└── dist/                        # 配布用WARファイル（自動生成、git管理外）
 ```
 
 ## 必要な環境
@@ -158,7 +162,26 @@ ant war
 ant test
 ```
 
-テスト結果は `build/test-reports/` に出力されます。
+テストが完了すると、以下の形式でレポートが生成されます：
+
+**HTMLレポート**（ブラウザで閲覧可能）:
+- メインページ: `build/test-reports/html/index.html`
+- 各テストクラスの詳細レポート
+- 失敗したテストのスタックトレース
+- テスト実行時間の統計
+
+**XMLレポート**（CI/CD統合用）:
+- `build/test-reports/xml/TEST-*.xml`
+- `build/test-reports/xml/TESTS-TestSuites.xml`
+
+HTMLレポートをブラウザで開くには：
+```bash
+# Linuxの場合
+xdg-open build/test-reports/html/index.html
+
+# macOSの場合
+open build/test-reports/html/index.html
+```
 
 ## アプリケーションのデプロイ
 
