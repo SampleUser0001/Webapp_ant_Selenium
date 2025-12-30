@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WebAppTestSample" default="war" basedir="."
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+    <description>
+        Webアプリケーションテストサンプル - Ant + JUnit 5 + Selenium + Ivy
+    </description>
+
+    <!-- Ivy設定 -->
+    <property name="ivy.install.version" value="2.5.3"/>
+    <property name="ivy.jar.dir" value="${basedir}/ant-lib"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar"/>
+
+    <!-- Ivyタスク定義 -->
+    <path id="ivy.lib.path">
+        <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+             uri="antlib:org.apache.ivy.ant"
+             classpathref="ivy.lib.path"/>
+
+    <!-- プロパティ定義 -->
+    <property name="src.dir" location="src"/>
+    <property name="test.dir" location="test"/>
+    <property name="webapp.dir" location="webapp"/>
+    <property name="build.dir" location="build"/>
+    <property name="build.classes.dir" location="${build.dir}/classes"/>
+    <property name="build.test.classes.dir" location="${build.dir}/test-classes"/>
+    <property name="dist.dir" location="dist"/>
+    <property name="lib.dir" location="lib"/>
+    <property name="test.reports.dir" location="${build.dir}/test-reports"/>
+
+    <property name="app.name" value="webapp-test-sample"/>
+    <property name="war.file" value="${dist.dir}/${app.name}.war"/>
+
+    <!-- クラスパス定義 -->
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}/compile">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="test.classpath">
+        <fileset dir="${lib.dir}/compile">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${lib.dir}/test">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement location="${build.classes.dir}"/>
+        <pathelement location="${build.test.classes.dir}"/>
+    </path>
+
+    <!-- 初期化 -->
+    <target name="init">
+        <echo message="プロジェクトを初期化しています..."/>
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.test.classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${test.reports.dir}"/>
+    </target>
+
+    <!-- クリーン -->
+    <target name="clean">
+        <echo message="ビルド成果物を削除しています..."/>
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- Ivy依存関係解決 -->
+    <target name="resolve" depends="init" description="依存関係を解決してダウンロード">
+        <echo message="Ivyで依存関係を解決しています..."/>
+        <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]"
+                      conf="compile,test"/>
+    </target>
+
+    <!-- コンパイル -->
+    <target name="compile" depends="resolve">
+        <echo message="ソースコードをコンパイルしています..."/>
+        <javac srcdir="${src.dir}"
+               destdir="${build.classes.dir}"
+               includeantruntime="false"
+               encoding="UTF-8"
+               release="11"
+               target="11">
+            <classpath refid="compile.classpath"/>
+        </javac>
+    </target>
+
+    <!-- テストコンパイル -->
+    <target name="compile-test" depends="compile">
+        <echo message="テストコードをコンパイルしています..."/>
+        <javac srcdir="${test.dir}"
+               destdir="${build.test.classes.dir}"
+               includeantruntime="false"
+               encoding="UTF-8"
+               release="11"
+               >
+            <classpath refid="test.classpath"/>
+        </javac>
+    </target>
+
+    <!-- WARファイル作成 -->
+    <target name="war" depends="compile">
+        <echo message="WARファイルを作成しています..."/>
+        <war destfile="${war.file}" webxml="${webapp.dir}/WEB-INF/web.xml">
+            <classes dir="${build.classes.dir}"/>
+            <fileset dir="${webapp.dir}">
+                <exclude name="WEB-INF/web.xml"/>
+            </fileset>
+            <!-- コンパイル用ライブラリのみを含める（テスト用は除外） -->
+            <lib dir="${lib.dir}/compile">
+                <include name="**/*.jar"/>
+            </lib>
+        </war>
+        <echo message="WARファイルが作成されました: ${war.file}"/>
+    </target>
+
+    <!-- JUnit 5テスト実行 -->
+    <target name="test" depends="compile-test">
+        <echo message="JUnit 5テストを実行しています..."/>
+        <junitlauncher printsummary="yes" haltonfailure="no">
+            <classpath refid="test.classpath"/>
+            <testclasses outputdir="${test.reports.dir}">
+                <fileset dir="${build.test.classes.dir}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+                <listener type="legacy-plain" sendSysOut="true"/>
+                <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+            </testclasses>
+        </junitlauncher>
+    </target>
+
+    <!-- すべてをビルド -->
+    <target name="all" depends="clean, war, test">
+        <echo message="ビルドが完了しました"/>
+    </target>
+
+    <!-- ChromeDriverセットアップ -->
+    <target name="setup-chromedriver" description="ChromeDriverを自動ダウンロード">
+        <echo message="ChromeDriverをセットアップしています..."/>
+        <exec executable="bash" failonerror="true">
+            <arg value="${basedir}/setup-chromedriver.sh"/>
+        </exec>
+    </target>
+
+    <!-- ヘルプ -->
+    <target name="help">
+        <echo message="利用可能なターゲット:"/>
+        <echo message="  clean             - ビルド成果物を削除"/>
+        <echo message="  compile           - ソースコードをコンパイル"/>
+        <echo message="  compile-test      - テストコードをコンパイル"/>
+        <echo message="  war               - WARファイルを作成"/>
+        <echo message="  test              - JUnit 5テストを実行"/>
+        <echo message="  setup-chromedriver - ChromeDriverを自動ダウンロード"/>
+        <echo message="  all               - クリーン、ビルド、テストを実行"/>
+    </target>
+</project>

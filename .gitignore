@@ -1,0 +1,38 @@
+# ビルド成果物
+build/
+dist/
+
+# Ivyが自動生成する依存ライブラリ
+lib/
+
+# テストレポート
+test-reports/
+
+# ChromeDriver（自動ダウンロード）
+chromedriver
+chromedriver.exe
+
+# Javaコンパイル成果物
+*.class
+
+# ログファイル
+*.log
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+
+# IDE設定ファイル
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# 一時ファイル
+*.swp
+*.swo
+*~
+
+.python-version

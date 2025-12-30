@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tomcat:
+    image: tomcat:10.1-jdk11
+    container_name: webapp-test-tomcat
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../dist/webapp-test-sample.war:/usr/local/tomcat/webapps/webapp-test-sample.war
+    environment:
+      - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+    networks:
+      - webapp-network
+
+networks:
+  webapp-network:
+    driver: bridge

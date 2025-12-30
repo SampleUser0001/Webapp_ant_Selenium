@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+    <info organisation="com.example" module="webapp-test-sample" status="integration">
+        <description>
+            Tomcat + JUnit 5 + Seleniumを使用したWebアプリケーションテストサンプル
+        </description>
+    </info>
+
+    <configurations>
+        <conf name="compile" description="Compile dependencies"/>
+        <conf name="test" extends="compile" description="Test dependencies"/>
+        <conf name="runtime" extends="compile" description="Runtime dependencies"/>
+    </configurations>
+
+    <dependencies>
+        <!-- Jakarta EE Servlet API (Tomcat 10用) -->
+        <dependency org="jakarta.servlet" name="jakarta.servlet-api" rev="5.0.0" conf="compile->default"/>
+
+        <!-- Jakarta EE JSP API (Tomcat 10用) -->
+        <dependency org="jakarta.servlet.jsp" name="jakarta.servlet.jsp-api" rev="3.0.0" conf="compile->default"/>
+
+        <!-- JUnit 5 -->
+        <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.10.1" conf="test->default"/>
+        <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.10.1" conf="test->default"/>
+        <dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.10.1" conf="test->default"/>
+
+        <!-- Selenium WebDriver -->
+        <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="4.15.0" conf="test->default"/>
+
+        <!-- Hamcrest (アサーション用) -->
+        <dependency org="org.hamcrest" name="hamcrest" rev="2.2" conf="test->default"/>
+    </dependencies>
+</ivy-module>
