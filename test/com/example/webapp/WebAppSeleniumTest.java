@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WebAppSeleniumTest {
 
     private WebDriver driver;
-    private String baseUrl = "http://localhost:8080";
+    private String baseUrl = "http://localhost:8080/webapp-test-sample";
 
     @BeforeEach
     public void setUp() {
@@ -97,6 +97,13 @@ public class WebAppSeleniumTest {
         // 送信ボタンをクリック
         WebElement submitButton = driver.findElement(By.id("submitBtn"));
         submitButton.click();
+
+        // ページ遷移を待つ（フォーム送信後の再読み込みが完了するまで）
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // 入力した名前で挨拶が表示されることを確認
         WebElement greetingElement = driver.findElement(By.id("greeting"));
